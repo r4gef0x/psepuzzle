@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PTE Puzzle — Certificate</title>
+<link rel="icon" href="icon.png">
+<style>
+  :root{
+    --bg:#0f0d17; --panel:#171426; --line:#2a2540;
+    --ink:#d9d5e6; --leise:#8f89a6;
+    --teal:#23e6c8; --violett:#c842ff; --gold:#ffc43d;
+    --akzent:var(--violett);
+    --gut:#39d98a; --schlecht:#ff5f6d;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:6vh 1.2rem; background:var(--bg); color:var(--ink);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    display:flex; justify-content:center;
+  }
+  main{width:100%; max-width:34rem}
+  .marke{
+    font-size:.78rem; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--leise); margin-bottom:1.6rem;
+  }
+  .karte{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:1.6rem; border-top:3px solid var(--akzent);
+  }
+  .status{display:flex; align-items:center; gap:.7rem; font-size:1.35rem; font-weight:600}
+  .status .zeichen{
+    width:1.9rem; height:1.9rem; border-radius:50%; flex:0 0 auto;
+    display:grid; place-items:center; font-size:1.1rem; color:#0d0b12;
+  }
+  .echt .zeichen{background:var(--gut)} .echt{color:var(--gut)}
+  .falsch .zeichen{background:var(--schlecht)} .falsch{color:var(--schlecht)}
+  .unklar .zeichen{background:var(--leise)} .unklar{color:var(--leise)}
+  dl{margin:1.5rem 0 0; display:grid; grid-template-columns:auto 1fr; gap:.55rem 1.2rem}
+  dt{color:var(--leise); font-size:.9rem}
+  dd{margin:0; font-variant-numeric:tabular-nums}
+  .stufe{color:var(--akzent); font-weight:600}
+  .zahl{font-size:1.05rem}
+  .fuss{margin-top:1.6rem; font-size:.82rem; line-height:1.55; color:var(--leise)}
+  .fuss p{margin:.6rem 0}
+  a{color:var(--akzent)}
+  code{font-size:.85em; word-break:break-all; color:var(--leise)}
+</style>
+</head>
+<body>
+<main>
+  <div class="marke">PTE Puzzle</div>
+  <div class="karte">
+    <div id="status" class="status unklar">
+      <span class="zeichen">…</span><span id="statustext">Checking…</span>
+    </div>
+    <dl id="felder" hidden>
+      <dt id="l-level">Level</dt><dd class="stufe" id="v-stufe">—</dd>
+      <dt id="l-result">Result</dt><dd class="zahl">118 / 118</dd>
+      <dt id="l-date">Date</dt><dd id="v-datum">—</dd>
+      <dt id="l-no">Certificate</dt><dd id="v-nummer">—</dd>
+    </dl>
+    <div class="fuss" id="fuss"></div>
+  </div>
+  <p style="margin:1.6rem 0 0;font-size:.9rem"><a href="./">PTE Puzzle →</a></p>
+</main>
+
+<script>
+// Der oeffentliche Schluessel (P-256, roher Punkt, Base64url). Das Gegenstueck steckt in der
+// App und verlaesst sie nie. Wird eines von beiden getauscht, sind alle bisher ausgestellten
+// Urkunden nicht mehr pruefbar.
+const OEFFENTLICHER_SCHLUESSEL =
+  "BHAhqFCyba7m2qIEsBD2l3nMxWuDQdg_XAPhatPAET_uT3dFR0GQ8gzEMSVl7xuVXN7zUsXYq4LhtIO-aBBqSc0";
+
+const DE = (navigator.language || "en").toLowerCase().startsWith("de");
+const T = DE ? {
+  pruefe:"Wird geprüft …",
+  echt:"Echte Urkunde",
+  falsch:"Nicht echt",
+  unklar:"Nicht prüfbar",
+  level:"Stufe", ergebnis:"Ergebnis", datum:"Datum", nummer:"Urkunde",
+  stufen:{easy:"Einfach", normal:"Normal", nerd:"N.E.R.D"},
+  erklaerungEcht:
+    "Diese Urkunde wurde von PTE Puzzle ausgestellt und seither nicht verändert. " +
+    "Alle 118 Elemente wurden in einem Durchgang richtig gesetzt.",
+  erklaerungFalsch:
+    "Die Angaben passen nicht zur Unterschrift. Entweder wurde der Link verändert, " +
+    "oder die Urkunde stammt nicht aus dem Spiel.",
+  erklaerungUnklar:
+    "In diesem Link stehen keine prüfbaren Angaben. Eine Urkunde wird aus dem Spiel heraus " +
+    "geteilt; der QR-Code darauf führt hierher.",
+  datenschutz:
+    "Geprüft wird ausschließlich hier im Browser. Die Angaben stehen hinter dem Rautezeichen " +
+    "der Adresse und werden deshalb nie an einen Server geschickt — auch nicht an den, der " +
+    "diese Seite ausliefert.",
+  grenze:
+    "Was das nicht leistet: Der private Schlüssel steckt im Programm und ließe sich mit genug " +
+    "Aufwand herausholen. Der Nachweis schützt gegen einen bearbeiteten Screenshot, nicht " +
+    "gegen einen entschlossenen Fälscher."
+} : {
+  pruefe:"Checking …",
+  echt:"Authentic certificate",
+  falsch:"Not authentic",
+  unklar:"Nothing to check",
+  level:"Level", ergebnis:"Result", datum:"Date", nummer:"Certificate",
+  stufen:{easy:"Easy", normal:"Normal", nerd:"N.E.R.D"},
+  erklaerungEcht:
+    "This certificate was issued by PTE Puzzle and has not been altered since. " +
+    "All 118 elements were placed correctly in a single run.",
+  erklaerungFalsch:
+    "The details do not match the signature. Either the link was edited, or the " +
+    "certificate did not come from the game.",
+  erklaerungUnklar:
+    "This link carries no verifiable details. A certificate is shared from inside the game; " +
+    "the QR code on it leads here.",
+  datenschutz:
+    "Verification happens entirely in your browser. The details sit behind the '#' in the " +
+    "address and are therefore never sent to any server — not even to the one serving this page.",
+  grenze:
+    "What this does not do: the private key lives inside the app and could be extracted with " +
+    "enough effort. The proof guards against an edited screenshot, not a determined forger."
+};
+
+const $ = id => document.getElementById(id);
+const b64u = s => {
+  const t = s.replace(/-/g,"+").replace(/_/g,"/");
+  const bin = atob(t + "=".repeat((4 - t.length % 4) % 4));
+  return Uint8Array.from(bin, c => c.charCodeAt(0));
+};
+
+function setzeStatus(art, text){
+  const el = $("status");
+  el.className = "status " + art;
+  el.querySelector(".zeichen").textContent = art === "echt" ? "✓" : art === "falsch" ? "✕" : "?";
+  $("statustext").textContent = text;
+}
+
+function beschrifte(){
+  $("l-level").textContent = T.level;
+  $("l-result").textContent = T.ergebnis;
+  $("l-date").textContent = T.datum;
+  $("l-no").textContent = T.nummer;
+}
+
+function datumLesbar(iso){
+  const d = new Date(iso + "T00:00:00Z");
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString(DE ? "de-DE" : undefined,
+    { year:"numeric", month:"long", day:"numeric", timeZone:"UTC" });
+}
+
+async function pruefe(){
+  beschrifte();
+  setzeStatus("unklar", T.pruefe);
+  $("felder").hidden = true;
+  $("fuss").innerHTML = "";
+
+  // Die Nutzlast steht hinter dem '#'. Alles davor ist nur die Adresse dieser Seite.
+  const roh = location.hash.replace(/^#/, "");
+  const p = new URLSearchParams(roh);
+  const s = p.get("s"), d = p.get("d"), n = p.get("n"), sig = p.get("sig");
+
+  if (!s || !d || !n || !sig) {
+    document.documentElement.style.setProperty("--akzent", "var(--violett)");
+    setzeStatus("unklar", T.unklar);
+    $("fuss").innerHTML = `<p>${T.erklaerungUnklar}</p>`;
+    return;
+  }
+
+  // Genau die Felder, genau in dieser Reihenfolge — so hat die App sie unterschrieben.
+  const nutzlast = `s=${s}&d=${d}&n=${n}`;
+
+  let gueltig = false;
+  try {
+    const key = await crypto.subtle.importKey(
+      "raw", b64u(OEFFENTLICHER_SCHLUESSEL),
+      { name:"ECDSA", namedCurve:"P-256" }, false, ["verify"]);
+    gueltig = await crypto.subtle.verify(
+      { name:"ECDSA", hash:"SHA-256" }, key, b64u(sig),
+      new TextEncoder().encode(nutzlast));
+  } catch (e) {
+    gueltig = false;
+  }
+
+  const farbe = { easy:"var(--teal)", normal:"var(--violett)", nerd:"var(--gold)" }[s];
+  if (farbe) document.documentElement.style.setProperty("--akzent", farbe);
+
+  $("v-stufe").textContent  = T.stufen[s] || s;
+  $("v-datum").textContent  = datumLesbar(d);
+  $("v-nummer").textContent = n;
+  $("felder").hidden = false;
+
+  setzeStatus(gueltig ? "echt" : "falsch", gueltig ? T.echt : T.falsch);
+  $("fuss").innerHTML =
+    `<p>${gueltig ? T.erklaerungEcht : T.erklaerungFalsch}</p>` +
+    `<p>${T.datenschutz}</p>` +
+    `<p>${T.grenze}</p>`;
+}
+
+// Eine reine Änderung hinter dem '#' laedt die Seite **nicht** neu. Ohne das hier bliebe ein
+// zweiter, anderer QR-Code auf dem Ergebnis des ersten stehen — und wer im Adressfeld die
+// Stufe von Hand hochsetzt, saehe weiter "echt".
+window.addEventListener("hashchange", pruefe);
+pruefe();
+</script>
+</body>
+</html>
