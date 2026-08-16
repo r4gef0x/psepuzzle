@@ -1,12 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="wartet">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PTE Puzzle — Learn the periodic table by playing</title>
-<meta name="description" content="PTE Puzzle — place the elements where they belong and learn the periodic table by playing. For iPhone.">
+<title>PTE Puzzle</title>
+<meta name="description" content="Learn the periodic table by playing.">
 <link rel="icon" href="icon.png">
-<!-- Für schöne Link-Vorschauen: absolute URL eintragen, sobald die Seite live ist -->
 <meta property="og:title" content="PTE Puzzle">
 <meta property="og:description" content="Learn the periodic table by playing.">
 <meta property="og:image" content="promo.jpg">
@@ -23,7 +22,24 @@
   a { color: #23e6c8; }
   .wrap { max-width: 720px; margin: 0 auto; padding: 0 1.25rem; }
 
-  /* Hero */
+  /* Sprachwahl. Oben rechts, klein, aber nicht versteckt: Wer im falschen Text landet,
+     muss sie ohne Suchen finden. Im Rechts-nach-links-Satz wandert sie nach links. */
+  .sprachwahl {
+    position: absolute; top: .9rem; right: 1rem; z-index: 3;
+    display: flex; align-items: center; gap: .45rem;
+  }
+  html[dir="rtl"] .sprachwahl { right: auto; left: 1rem; }
+  .sprachwahl label { font-size: .8rem; color: #b9b3cd; text-shadow: 0 1px 6px rgba(0,0,0,.8); }
+  .sprachwahl select {
+    background: rgba(15,13,23,.72); color: #e6e2f2;
+    border: 1px solid rgba(255,255,255,.22); border-radius: 999px;
+    padding: .32rem 1.7rem .32rem .7rem; font-size: .85rem;
+    -webkit-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='7'><path d='M1 1l4 4 4-4' fill='none' stroke='%2323e6c8' stroke-width='1.6'/></svg>");
+    background-repeat: no-repeat; background-position: right .6rem center;
+  }
+  html[dir="rtl"] .sprachwahl select { padding: .32rem .7rem .32rem 1.7rem; background-position: left .6rem center; }
+
   .hero { position: relative; line-height: 0; }
   .hero img { width: 100%; height: auto; max-height: 60vh; object-fit: cover; object-position: center 42%; display: block; }
   .hero::after {
@@ -31,7 +47,6 @@
     background: linear-gradient(180deg, rgba(15,13,23,0) 0%, #0f0d17 100%);
   }
 
-  /* App-Header mit überlappendem Icon */
   .intro { text-align: center; padding: 0 1.25rem 1.5rem; position: relative; z-index: 1; }
   .appicon {
     width: 96px; height: 96px; border-radius: 22%;
@@ -41,7 +56,6 @@
   .mark { font-size: 2rem; font-weight: 800; letter-spacing: .12em; color: #c842ff;
           text-shadow: 0 0 22px rgba(200,66,255,.4); margin: .7rem 0 .3rem; }
   .tagline { font-size: 1.12rem; color: #cdb8ea; margin: 0; }
-  .tagline .de { display: block; color: #8f89a6; font-size: .96rem; margin-top: .15rem; }
   .badge {
     display: inline-block; text-decoration: none; margin-top: 1.6rem;
     padding: .8rem 1.5rem; border-radius: 999px;
@@ -56,8 +70,10 @@
   ul.features { list-style: none; padding: 0; margin: 1rem 0; }
   ul.features li { padding: .35rem 0 .35rem 1.6rem; position: relative; }
   ul.features li::before { content: "◆"; color: #c842ff; position: absolute; left: 0; font-size: .8rem; top: .55rem; }
+  html[dir="rtl"] ul.features li { padding: .35rem 1.6rem .35rem 0; }
+  html[dir="rtl"] ul.features li::before { left: auto; right: 0; }
+  .fair { color: #8f89a6; font-size: .96rem; }
 
-  /* Screenshots */
   .shots { max-width: 940px; margin: 0 auto; padding: 1rem 1.25rem 0; }
   .shots figure { margin: 0 0 2rem; }
   .shots img { width: 100%; height: auto; border-radius: 14px; border: 1px solid #232038; box-shadow: 0 10px 30px rgba(0,0,0,.4); display: block; }
@@ -66,68 +82,529 @@
   footer { text-align: center; margin-top: 2rem; padding: 2rem 1.25rem 3rem;
            border-top: 1px solid #232038; color: #6b6782; font-size: .9rem; }
   footer a { margin: 0 .5rem; }
+
+  /* Bis die Sprache steht, bleibt der Text unsichtbar — sonst blitzt beim Laden
+     kurz das Englische auf, bevor es ersetzt wird. */
+  html.wartet body { visibility: hidden; }
 </style>
 </head>
 <body>
+  <div class="sprachwahl">
+    <label for="sprache" data-i18n="langLabel">Language</label>
+    <select id="sprache" aria-label="Language"></select>
+  </div>
+
   <div class="hero">
-    <img src="promo.jpg" alt="PTE Puzzle — Runenstein im Nebel">
+    <img src="promo.jpg" alt="PTE Puzzle">
   </div>
 
   <div class="intro">
-    <img class="appicon" src="icon.png" alt="PTE Puzzle App-Icon">
-    <p class="mark">PTE&nbsp;PUZZLE</p>
-    <p class="tagline">Learn the periodic table by playing.
-      <span class="de">Das Periodensystem spielend lernen.</span>
-    </p>
-    <div><a class="badge" href="https://apps.apple.com/app/id1177678771">Download on the App&nbsp;Store</a></div>
+    <img class="appicon" src="icon.png" alt="PTE Puzzle">
+    <p class="mark" data-i18n="marke">PTE&nbsp;PUZZLE</p>
+    <p class="tagline" data-i18n="tagline">Learn the periodic table by playing.</p>
+    <div><a class="badge" href="https://apps.apple.com/app/id1177678771" data-i18n="cta">Download on the App&nbsp;Store</a></div>
   </div>
 
   <main class="wrap">
     <section>
-      <p class="lead">Place each element where it belongs in the periodic table — calm, focused, wrapped
-      in a fog-and-runes atmosphere. That's exactly how the order of the elements settles into your
-      memory, almost on its own. No cramming.</p>
+      <p class="lead" data-i18n="lead"></p>
     </section>
 
     <section>
-      <h2>What you get</h2>
-      <ul class="features">
-        <li>Learn the elements step by step — from their place in the table to their symbol</li>
-        <li>A dedicated Learn mode: discover first, then lock it in through play</li>
-        <li>Three difficulties — Easy, Normal, and N.E.R.D. for the true experts</li>
-        <li>Your progress stays visible: every run with date, score and level</li>
-        <li>Works fully offline · no data collection · no tracking · no accounts</li>
-        <li>Available in 14 languages</li>
-      </ul>
+      <h2 data-i18n="featuresHeading">What you get</h2>
+      <ul class="features" id="features"></ul>
+      <p class="fair" data-i18n="fair"></p>
     </section>
   </main>
 
   <section class="shots">
-    <figure>
-      <img src="shot-board.jpg" alt="Das komplette Periodensystem im Spiel">
-      <figcaption>Element für Element zum vollständigen Periodensystem.</figcaption>
-    </figure>
-    <figure>
-      <img src="shot-play.jpg" alt="Mitten im Spiel — Elemente werden eingesetzt">
-      <figcaption>Mitten im Spiel: jedes Element an seinen richtigen Platz.</figcaption>
-    </figure>
+    <figure><img src="shot-menu.jpg"  alt=""><figcaption data-i18n="capMenu"></figcaption></figure>
+    <figure><img src="shot-board.jpg" alt=""><figcaption data-i18n="capBoard"></figcaption></figure>
+    <figure><img src="shot-learn.jpg" alt=""><figcaption data-i18n="capLearn"></figcaption></figure>
+    <figure><img src="shot-bonus.jpg" alt=""><figcaption data-i18n="capBonus"></figcaption></figure>
   </section>
 
   <section class="support wrap">
-    <h2>Support</h2>
-    <p>Questions, feedback, or need help with the app? Email
-      <a href="mailto:Philipp.Reinicke@gmx.de">Philipp.Reinicke@gmx.de</a> — we're happy to help and reply as soon as we can.</p>
-    <p style="color:#8f89a6; font-size:.96rem;">Fragen, Feedback oder Hilfe zur App? Schreib an
-      <a href="mailto:Philipp.Reinicke@gmx.de">Philipp.Reinicke@gmx.de</a> — wir melden uns so schnell wie möglich.</p>
+    <h2 data-i18n="supportHeading">Support</h2>
+    <p data-i18n-html="supportText"></p>
   </section>
 
   <footer>
     <div>
-      <a href="privacy.html">Privacy Policy · Datenschutz</a>
+      <a href="privacy.html" data-i18n="privacyLink">Privacy Policy</a>
       <a href="impressum.html">Impressum</a>
     </div>
-    <p>Support: <a href="mailto:Philipp.Reinicke@gmx.de">Philipp.Reinicke@gmx.de</a></p>
-    <p>© 2026 Philipp Reinicke · PTE Puzzle</p>
+    <!-- Diese beiden Zeilen bleiben auch im arabischen Satz lateinisch. Ohne dir="ltr" ordnet
+         der Browser sie nach rechts-nach-links um: Aus „© 2026 Philipp Reinicke“ wird dann
+         „Philipp Reinicke 2026 ©“. -->
+    <p dir="ltr">Support: <a href="mailto:Philipp.Reinicke@gmx.de">Philipp.Reinicke@gmx.de</a></p>
+    <p dir="ltr">© 2026 Philipp Reinicke · PTE Puzzle</p>
   </footer>
+
+<script>
+// <sprachen> — ERZEUGT von website/sprachen_bauen.py.
+// Nicht von Hand ändern: Der nächste Lauf überschreibt alles zwischen diesen Marken.
+const SPRACHEN = {
+  "en": {
+    "name": "English",
+    "htmlLang": "en",
+    "title": "PTE Puzzle — Learn the periodic table",
+    "marke": "PTE PUZZLE",
+    "tagline": "The periodic table – not crammed, but played.",
+    "lead": "In PTE Puzzle you place each element where it belongs in the periodic table – calm, focused, wrapped in a fog-and-runes look that feels more like an old ritual than a chemistry lesson. And that's exactly how the order of the elements settles into your memory, almost on its own.",
+    "featuresHeading": "What you get",
+    "features": [
+      "Learn the elements step by step – from their place in the table to their symbol",
+      "A dedicated Learn mode: discover first, then lock it in through play",
+      "Three difficulties – Easy, Normal, and N.E.R.D. for the true experts",
+      "Your progress stays visible: every run with date, score and level",
+      "Play a perfect round and the hidden bonus round opens: the lanthanides and actinides, in a cave below the table",
+      "Place all 118 and the table comes alive one last time — then a certificate you can share, with a code that proves it is genuine"
+    ],
+    "fair": "Works fully offline · No data collection, no tracking, no accounts · Available in 14 languages",
+    "capMenu": "Learn the periodic table by playing",
+    "capBoard": "Place every element where it belongs",
+    "capLearn": "A learn mode with real depth",
+    "capBonus": "A perfect round breaks the rock open",
+    "supportHeading": "Support",
+    "supportText": "Questions, feedback, or need help with the app? Write to <a href=\"mailto:Philipp.Reinicke@gmx.de\">Philipp.Reinicke@gmx.de</a> — I reply as soon as I can.",
+    "privacyLink": "Privacy Policy",
+    "langLabel": "Language",
+    "cta": "Download on the App Store"
+  },
+  "de": {
+    "name": "Deutsch",
+    "htmlLang": "de",
+    "title": "PSE Puzzle — Periodensystem spielend lernen",
+    "marke": "PSE PUZZLE",
+    "tagline": "Das Periodensystem – nicht gepaukt, sondern gespielt.",
+    "lead": "In PSE Puzzle setzt du jedes Element dorthin, wo es hingehört – ruhig, konzentriert, in einer Optik aus Nebel und Runen, die eher an ein altes Ritual erinnert als an den Chemieunterricht. Und genau so legt sich die Ordnung der Elemente ins Gedächtnis, fast von allein.",
+    "featuresHeading": "Was drin ist",
+    "features": [
+      "Lerne die Elemente Schritt für Schritt – vom Platz im System bis zum Symbol",
+      "Ein eigener Lernbereich: erst entdecken, dann spielend festigen",
+      "Drei Schwierigkeitsgrade – Einfach, Normal und N.E.R.D. für die wirklich Sattelfesten",
+      "Dein Fortschritt bleibt sichtbar: jeder Durchgang mit Datum, Punktzahl und Stufe",
+      "Spiel eine perfekte Runde, und die Bonusrunde öffnet sich: die Lanthanoide und Actinoide, in einer Höhle unter dem System",
+      "Setze alle 118, und das System erwacht ein letztes Mal — danach eine Urkunde zum Teilen, mit einem Code, der ihre Echtheit belegt"
+    ],
+    "fair": "Läuft vollständig offline · Keine Datensammlung, kein Tracking, keine Konten · In 14 Sprachen verfügbar",
+    "capMenu": "Das Periodensystem, spielend gelernt",
+    "capBoard": "Jedes Element an seinen Platz",
+    "capLearn": "Ein Lernbereich mit echter Tiefe",
+    "capBonus": "Eine perfekte Runde bricht den Fels auf",
+    "supportHeading": "Support",
+    "supportText": "Fragen, Rückmeldungen oder Hilfe zur App? Schreib an <a href=\"mailto:Philipp.Reinicke@gmx.de\">Philipp.Reinicke@gmx.de</a> — ich melde mich, so schnell ich kann.",
+    "privacyLink": "Datenschutz",
+    "langLabel": "Sprache",
+    "cta": "Im App Store laden"
+  },
+  "es": {
+    "name": "Español",
+    "htmlLang": "es",
+    "title": "Tabla Periódica Puzzle — Aprende la tabla periódica",
+    "marke": "PSE PUZZLE",
+    "tagline": "La tabla periódica: no empollada, sino jugada.",
+    "lead": "En PSE Puzzle colocas cada elemento donde le corresponde en la tabla periódica: con calma, con concentración, envuelto en una estética de niebla y runas que recuerda más a un rito antiguo que a una clase de química. Y así es como el orden de los elementos se te queda en la memoria, casi solo.",
+    "featuresHeading": "Lo que incluye",
+    "features": [
+      "Aprende los elementos paso a paso, desde su lugar en la tabla hasta su símbolo",
+      "Un modo de aprendizaje propio: primero descubrir, después fijarlo jugando",
+      "Tres dificultades: Fácil, Normal y N.E.R.D. para quienes van en serio",
+      "Tu progreso queda a la vista: cada partida con fecha, puntuación y nivel",
+      "Juega una ronda perfecta y se abre la ronda extra: los lantánidos y actínidos, en una cueva bajo la tabla",
+      "Coloca los 118 y la tabla se enciende una última vez; después, un certificado para compartir, con un código que acredita que es auténtico"
+    ],
+    "fair": "Funciona completamente sin conexión · Sin recogida de datos, sin seguimiento, sin cuentas · Disponible en 14 idiomas",
+    "capMenu": "Aprende la tabla periódica jugando",
+    "capBoard": "Cada elemento en su sitio",
+    "capLearn": "Un modo de aprendizaje con fondo",
+    "capBonus": "Una ronda perfecta abre la roca",
+    "supportHeading": "Soporte",
+    "supportText": "¿Preguntas, comentarios o necesitas ayuda? Escribe a <a href=\"mailto:Philipp.Reinicke@gmx.de\">Philipp.Reinicke@gmx.de</a>: respondo lo antes posible.",
+    "privacyLink": "Privacidad",
+    "langLabel": "Idioma",
+    "cta": "Consíguelo en el App Store"
+  },
+  "fr": {
+    "name": "Français",
+    "htmlLang": "fr",
+    "title": "Tableau Périodique Puzzle — Apprendre le tableau",
+    "marke": "PSE PUZZLE",
+    "tagline": "Le tableau périodique : pas ânonné, mais joué.",
+    "lead": "Dans PSE Puzzle, vous placez chaque élément à sa place dans le tableau périodique — calmement, en vous concentrant, dans une ambiance de brume et de runes qui tient davantage du rite ancien que du cours de chimie. Et c'est exactement ainsi que l'ordre des éléments s'installe dans la mémoire, presque tout seul.",
+    "featuresHeading": "Ce que vous obtenez",
+    "features": [
+      "Apprenez les éléments pas à pas — de leur place dans le tableau jusqu'à leur symbole",
+      "Un mode apprentissage à part entière : découvrir d'abord, ancrer ensuite en jouant",
+      "Trois difficultés — Facile, Normal, et N.E.R.D. pour celles et ceux qui savent vraiment",
+      "Votre progression reste visible : chaque partie avec date, score et niveau",
+      "Réussissez une partie parfaite et la manche bonus s'ouvre : les lanthanides et les actinides, dans une grotte sous le tableau",
+      "Placez les 118 et le tableau s'illumine une dernière fois — puis un certificat à partager, avec un code qui atteste son authenticité"
+    ],
+    "fair": "Fonctionne entièrement hors ligne · Aucune collecte de données, aucun pistage, aucun compte · Disponible en 14 langues",
+    "capMenu": "Apprendre le tableau en jouant",
+    "capBoard": "Chaque élément à sa place",
+    "capLearn": "Un mode apprentissage qui va au fond",
+    "capBonus": "Une partie parfaite ouvre la roche",
+    "supportHeading": "Assistance",
+    "supportText": "Des questions, un retour, besoin d'aide ? Écrivez à <a href=\"mailto:Philipp.Reinicke@gmx.de\">Philipp.Reinicke@gmx.de</a> — je réponds dès que possible.",
+    "privacyLink": "Confidentialité",
+    "langLabel": "Langue",
+    "cta": "Télécharger dans l'App Store"
+  },
+  "it": {
+    "name": "Italiano",
+    "htmlLang": "it",
+    "title": "Tavola Periodica Puzzle — Impara la tavola periodica",
+    "marke": "PSE PUZZLE",
+    "tagline": "La tavola periodica: non studiata a memoria, ma giocata.",
+    "lead": "In PSE Puzzle metti ogni elemento al suo posto nella tavola periodica: con calma, concentrato, immerso in un'atmosfera di nebbia e rune che ricorda più un antico rito che una lezione di chimica. Ed è proprio così che l'ordine degli elementi si deposita nella memoria, quasi da solo.",
+    "featuresHeading": "Cosa trovi",
+    "features": [
+      "Impara gli elementi passo dopo passo, dal posto nella tavola fino al simbolo",
+      "Una modalità apprendimento vera e propria: prima scoprire, poi fissare giocando",
+      "Tre difficoltà: Facile, Normale e N.E.R.D. per chi fa sul serio",
+      "I tuoi progressi restano visibili: ogni partita con data, punteggio e livello",
+      "Gioca una partita perfetta e si apre il round bonus: lantanidi e attinidi, in una grotta sotto la tavola",
+      "Sistema tutti i 118 e la tavola si accende un'ultima volta, poi arriva un certificato da condividere, con un codice che ne attesta l'autenticità"
+    ],
+    "fair": "Funziona completamente offline · Nessuna raccolta dati, nessun tracciamento, nessun account · Disponibile in 14 lingue",
+    "capMenu": "Impara la tavola periodica giocando",
+    "capBoard": "Ogni elemento al suo posto",
+    "capLearn": "Una modalità apprendimento con sostanza",
+    "capBonus": "Una partita perfetta spacca la roccia",
+    "supportHeading": "Assistenza",
+    "supportText": "Domande, commenti o serve aiuto? Scrivi a <a href=\"mailto:Philipp.Reinicke@gmx.de\">Philipp.Reinicke@gmx.de</a>: rispondo appena posso.",
+    "privacyLink": "Privacy",
+    "langLabel": "Lingua",
+    "cta": "Scarica su App Store"
+  },
+  "nl": {
+    "name": "Nederlands",
+    "htmlLang": "nl",
+    "title": "Periodiek Systeem Puzzel — Leer het periodiek systeem",
+    "marke": "PSE PUZZLE",
+    "tagline": "Het periodiek systeem: niet gestampt, maar gespeeld.",
+    "lead": "In PSE Puzzle leg je elk element op de plek waar het hoort in het periodiek systeem — rustig, geconcentreerd, in een sfeer van mist en runen die meer weg heeft van een oud ritueel dan van een scheikundeles. En precies zo nestelt de volgorde van de elementen zich in je geheugen, bijna vanzelf.",
+    "featuresHeading": "Wat je krijgt",
+    "features": [
+      "Leer de elementen stap voor stap — van hun plek in het systeem tot hun symbool",
+      "Een eigen leermodus: eerst ontdekken, daarna spelend vastzetten",
+      "Drie moeilijkheidsgraden — Makkelijk, Normaal en N.E.R.D. voor wie het echt weet",
+      "Je voortgang blijft zichtbaar: elke ronde met datum, score en niveau",
+      "Speel een perfecte ronde en de bonusronde gaat open: de lanthaniden en actiniden, in een grot onder het systeem",
+      "Leg alle 118 en het systeem licht een laatste keer op — daarna een certificaat om te delen, met een code die de echtheid aantoont"
+    ],
+    "fair": "Werkt volledig offline · Geen gegevensverzameling, geen tracking, geen accounts · Beschikbaar in 14 talen",
+    "capMenu": "Het periodiek systeem, spelend geleerd",
+    "capBoard": "Elk element op zijn plek",
+    "capLearn": "Een leermodus met echte diepgang",
+    "capBonus": "Een perfecte ronde breekt de rots open",
+    "supportHeading": "Ondersteuning",
+    "supportText": "Vragen, feedback of hulp nodig? Mail naar <a href=\"mailto:Philipp.Reinicke@gmx.de\">Philipp.Reinicke@gmx.de</a> — ik antwoord zo snel als het lukt.",
+    "privacyLink": "Privacy",
+    "langLabel": "Taal",
+    "cta": "Download in de App Store"
+  },
+  "pt-BR": {
+    "name": "Português (Brasil)",
+    "htmlLang": "pt-BR",
+    "title": "Tabela Periódica Puzzle — Aprenda a tabela periódica",
+    "marke": "PSE PUZZLE",
+    "tagline": "A tabela periódica: não decorada, e sim jogada.",
+    "lead": "No PSE Puzzle você coloca cada elemento no lugar a que ele pertence na tabela periódica — com calma, com atenção, numa atmosfera de névoa e runas que lembra mais um rito antigo do que uma aula de química. E é justamente assim que a ordem dos elementos se fixa na memória, quase sozinha.",
+    "featuresHeading": "O que você recebe",
+    "features": [
+      "Aprenda os elementos passo a passo — do lugar na tabela até o símbolo",
+      "Um modo de aprendizado próprio: primeiro descobrir, depois fixar jogando",
+      "Três dificuldades — Fácil, Normal e N.E.R.D. para quem leva a sério",
+      "Seu progresso fica à vista: cada partida com data, pontuação e nível",
+      "Faça uma rodada perfeita e a rodada bônus se abre: os lantanídeos e actinídeos, numa caverna sob a tabela",
+      "Coloque todos os 118 e a tabela se acende uma última vez — depois vem um certificado para compartilhar, com um código que comprova sua autenticidade"
+    ],
+    "fair": "Funciona totalmente offline · Sem coleta de dados, sem rastreamento, sem contas · Disponível em 14 idiomas",
+    "capMenu": "Aprenda a tabela periódica jogando",
+    "capBoard": "Cada elemento no seu lugar",
+    "capLearn": "Um modo de aprendizado com profundidade",
+    "capBonus": "Uma rodada perfeita quebra a rocha",
+    "supportHeading": "Suporte",
+    "supportText": "Dúvidas, comentários ou precisa de ajuda? Escreva para <a href=\"mailto:Philipp.Reinicke@gmx.de\">Philipp.Reinicke@gmx.de</a> — respondo assim que puder.",
+    "privacyLink": "Privacidade",
+    "langLabel": "Idioma",
+    "cta": "Baixar na App Store"
+  },
+  "tr": {
+    "name": "Türkçe",
+    "htmlLang": "tr",
+    "title": "Periyodik Tablo Bulmaca — Periyodik tabloyu öğren",
+    "marke": "PSE PUZZLE",
+    "tagline": "Periyodik tablo: ezberlenerek değil, oynanarak.",
+    "lead": "PSE Puzzle'da her elementi periyodik tabloda ait olduğu yere koyuyorsun: sakin, odaklanmış, sisle ve runlarla örülü bir görünümün içinde — bir kimya dersinden çok eski bir törene benziyor. Elementlerin sırası da tam böyle, neredeyse kendiliğinden aklında kalıyor.",
+    "featuresHeading": "Neler var",
+    "features": [
+      "Elementleri adım adım öğren — tablodaki yerinden simgesine kadar",
+      "Kendi başına bir öğrenme kipi: önce keşfet, sonra oynayarak pekiştir",
+      "Üç zorluk — Kolay, Normal ve gerçekten bilenler için N.E.R.D.",
+      "İlerlemen görünür kalıyor: her tur tarih, puan ve zorlukla birlikte",
+      "Kusursuz bir tur oyna, bonus tur açılsın: tablonun altındaki mağarada lantanitler ve aktinitler",
+      "118'in hepsini yerleştir, tablo son bir kez aydınlansın — ardından paylaşabileceğin bir belge, gerçekliğini kanıtlayan bir kodla"
+    ],
+    "fair": "Tamamen çevrimdışı çalışır · Veri toplama yok, izleme yok, hesap yok · 14 dilde kullanılabilir",
+    "capMenu": "Periyodik tabloyu oynayarak öğren",
+    "capBoard": "Her element kendi yerine",
+    "capLearn": "Gerçekten derinlikli bir öğrenme kipi",
+    "capBonus": "Kusursuz bir tur kayayı açar",
+    "supportHeading": "Destek",
+    "supportText": "Soru, geri bildirim ya da yardım mı gerekiyor? <a href=\"mailto:Philipp.Reinicke@gmx.de\">Philipp.Reinicke@gmx.de</a> adresine yazın — en kısa sürede yanıtlıyorum.",
+    "privacyLink": "Gizlilik",
+    "langLabel": "Dil",
+    "cta": "App Store'dan indir"
+  },
+  "ru": {
+    "name": "Русский",
+    "htmlLang": "ru",
+    "title": "Таблица Менделеева головоломка — Таблица Менделеева играючи",
+    "marke": "PSE PUZZLE",
+    "tagline": "Периодическая таблица — не зубрёжка, а игра.",
+    "lead": "Здесь вы ставите каждый элемент туда, где ему место: спокойно, сосредоточенно, среди тумана и рун — это больше похоже на древний обряд, чем на урок химии. Именно так порядок элементов и оседает в памяти, почти сам собой.",
+    "featuresHeading": "Что внутри",
+    "features": [
+      "Элементы по одному — от места в таблице до символа",
+      "Отдельный режим обучения: сначала разобраться, потом закрепить игрой",
+      "Три уровня сложности — лёгкий, обычный и N.E.R.D. для тех, кто действительно знает",
+      "Прогресс виден: каждая партия с датой, счётом и уровнем",
+      "Сыграйте партию без единой ошибки — и откроется бонусный раунд: лантаноиды и актиноиды в пещере под таблицей",
+      "Соберите все 118 — и таблица оживёт в последний раз, а затем диплом, которым можно поделиться, с кодом подлинности"
+    ],
+    "fair": "Работает полностью офлайн · Никакого сбора данных, отслеживания и учётных записей · Доступно на 14 языках",
+    "capMenu": "Таблица Менделеева играючи",
+    "capBoard": "Каждый элемент — на своё место",
+    "capLearn": "Режим обучения с настоящей глубиной",
+    "capBonus": "Идеальный раунд раскалывает скалу",
+    "supportHeading": "Поддержка",
+    "supportText": "Вопросы, отзывы или нужна помощь? Пишите на <a href=\"mailto:Philipp.Reinicke@gmx.de\">Philipp.Reinicke@gmx.de</a> — отвечу, как только смогу.",
+    "privacyLink": "Конфиденциальность",
+    "langLabel": "Язык",
+    "cta": "Загрузить в App Store"
+  },
+  "ja": {
+    "name": "日本語",
+    "htmlLang": "ja",
+    "title": "PTE 周期表パズル — 遊びながら覚える周期表",
+    "marke": "PTE PUZZLE",
+    "tagline": "周期表は、詰め込むものではなく、遊ぶもの。",
+    "lead": "周期表パズルでは、それぞれの元素をあるべき場所に置いていきます。霧とルーン文字に包まれた静かな画面は、化学の授業というより古い儀式のよう。だからこそ、元素の並びは自然と記憶に残ります。",
+    "featuresHeading": "収録されているもの",
+    "features": [
+      "元素をひとつずつ覚える ― 周期表での位置から元素記号まで",
+      "独立した学習モード ― まず知り、そして遊んで定着させる",
+      "3つの難易度 ― 簡単、標準、そして本気の人のための N.E.R.D.",
+      "記録は残ります ― 日付・スコア・難易度つきで一戦ごとに",
+      "完璧に解ければボーナスラウンドが開きます ― 周期表の下の洞窟に、ランタノイドとアクチノイド",
+      "118個すべてを置くと、周期表が最後にもう一度輝きます ― そして共有できる認定証。本物であることを示すコード付き"
+    ],
+    "fair": "完全にオフラインで動作します · データ収集なし、トラッキングなし、アカウント登録なし · 14言語に対応",
+    "capMenu": "遊びながら覚える周期表",
+    "capBoard": "すべての元素を、あるべき場所へ",
+    "capLearn": "本格的な学習モード",
+    "capBonus": "完璧な一周が岩を割る",
+    "supportHeading": "サポート",
+    "supportText": "ご質問、ご意見、お困りのことがあれば <a href=\"mailto:Philipp.Reinicke@gmx.de\">Philipp.Reinicke@gmx.de</a> までご連絡ください。できるだけ早くお返事します。",
+    "privacyLink": "プライバシー",
+    "langLabel": "言語",
+    "cta": "App Storeでダウンロード"
+  },
+  "ko": {
+    "name": "한국어",
+    "htmlLang": "ko",
+    "title": "주기율표 퍼즐 — 놀면서 익히는 주기율표",
+    "marke": "PSE PUZZLE",
+    "tagline": "주기율표는 외우는 것이 아니라 노는 것.",
+    "lead": "PSE Puzzle에서는 각 원소를 주기율표에서 제자리에 놓습니다. 조용하고 집중된 화면, 안개와 룬 문자로 감싸인 분위기는 화학 수업보다 오래된 의식에 가깝습니다. 그래서 원소의 순서는 저절로 기억에 남습니다.",
+    "featuresHeading": "담긴 것",
+    "features": [
+      "원소를 하나씩 익힙니다 — 주기율표에서의 위치부터 기호까지",
+      "독립된 학습 모드: 먼저 알고, 그다음 놀면서 굳힙니다",
+      "세 가지 난이도 — 쉬움, 보통, 그리고 진심인 사람을 위한 N.E.R.D.",
+      "기록은 남습니다: 날짜, 점수, 난이도와 함께 한 판마다",
+      "완벽하게 끝내면 보너스 라운드가 열립니다 — 주기율표 아래 동굴의 란타넘족과 악티늄족",
+      "118개를 모두 놓으면 주기율표가 마지막으로 한 번 더 빛납니다. 그리고 공유할 수 있는 인증서, 진짜임을 보여주는 코드와 함께"
+    ],
+    "fair": "완전히 오프라인으로 동작합니다 · 데이터 수집 없음, 추적 없음, 계정 없음 · 14개 언어 지원",
+    "capMenu": "놀면서 익히는 주기율표",
+    "capBoard": "모든 원소를 제자리에",
+    "capLearn": "깊이 있는 학습 모드",
+    "capBonus": "완벽한 한 판이 바위를 가릅니다",
+    "supportHeading": "지원",
+    "supportText": "질문, 의견, 도움이 필요하시면 <a href=\"mailto:Philipp.Reinicke@gmx.de\">Philipp.Reinicke@gmx.de</a> 로 연락 주세요. 최대한 빨리 답변드립니다.",
+    "privacyLink": "개인정보 처리방침",
+    "langLabel": "언어",
+    "cta": "App Store에서 다운로드"
+  },
+  "zh-Hans": {
+    "name": "简体中文",
+    "htmlLang": "zh-Hans",
+    "title": "元素周期表拼图 — 边玩边学元素周期表",
+    "marke": "PTE PUZZLE",
+    "tagline": "元素周期表——不是死记，而是玩会。",
+    "lead": "在《元素周期表拼图》里，你把每个元素放回它该在的位置。画面安静、专注，雾气与符文的质感更像一场古老的仪式，而不是化学课。元素的次序，就这样几乎自己住进了记忆里。",
+    "featuresHeading": "内容一览",
+    "features": [
+      "一步步认识元素——从它在表中的位置，到它的符号",
+      "独立的学习模式：先看懂，再在游戏里记牢",
+      "三种难度——简单、普通，以及给行家准备的 N.E.R.D.",
+      "进度看得见：每一局都记下日期、分数和难度",
+      "打出一局满分，隐藏的奖励关卡就会开启：周期表下方的洞窟里，镧系与锕系元素在等着",
+      "集齐全部 118 个，周期表会最后亮起一次——随后是可以分享的证书，附带证明真实性的代码"
+    ],
+    "fair": "完全离线运行 · 不收集数据，不追踪，无需账号 · 支持 14 种语言",
+    "capMenu": "边玩边学元素周期表",
+    "capBoard": "把每个元素放回它该在的位置",
+    "capLearn": "真正有深度的学习模式",
+    "capBonus": "完美的一局会敲开岩壁",
+    "supportHeading": "支持",
+    "supportText": "有问题、建议，或需要帮助？请写信到 <a href=\"mailto:Philipp.Reinicke@gmx.de\">Philipp.Reinicke@gmx.de</a>，我会尽快回复。",
+    "privacyLink": "隐私政策",
+    "langLabel": "语言",
+    "cta": "在 App Store 下载"
+  },
+  "zh-Hant": {
+    "name": "繁體中文",
+    "htmlLang": "zh-Hant",
+    "title": "元素週期表拼圖 — 邊玩邊學元素週期表",
+    "marke": "PSE PUZZLE",
+    "tagline": "元素週期表——不是死背，而是玩會。",
+    "lead": "在《元素週期表拼圖》裡，你把每個元素放回它該在的位置。畫面安靜、專注，霧氣與符文的質感更像一場古老的儀式，而不是化學課。元素的次序，就這樣幾乎自己住進了記憶裡。",
+    "featuresHeading": "內容一覽",
+    "features": [
+      "一步步認識元素——從它在表中的位置，到它的符號",
+      "獨立的學習模式：先看懂，再在遊戲裡記牢",
+      "三種難度——簡單、普通，以及給行家準備的 N.E.R.D.",
+      "進度看得見：每一局都記下日期、分數和難度",
+      "打出一局滿分，隱藏的獎勵關卡就會開啟：週期表下方的洞窟裡，鑭系與錒系元素在等著",
+      "集齊全部 118 個，週期表會最後亮起一次——隨後是可以分享的證書，附帶證明真實性的代碼"
+    ],
+    "fair": "完全離線運行 · 不收集資料，不追蹤，無需帳號 · 支援 14 種語言",
+    "capMenu": "邊玩邊學元素週期表",
+    "capBoard": "把每個元素放回它該在的位置",
+    "capLearn": "真正有深度的學習模式",
+    "capBonus": "完美的一局會敲開岩壁",
+    "supportHeading": "支援",
+    "supportText": "有問題、建議，或需要協助？請來信 <a href=\"mailto:Philipp.Reinicke@gmx.de\">Philipp.Reinicke@gmx.de</a>，我會盡快回覆。",
+    "privacyLink": "隱私權政策",
+    "langLabel": "語言",
+    "cta": "在 App Store 下載"
+  },
+  "ar": {
+    "name": "العربية",
+    "htmlLang": "ar",
+    "title": "أحجية الجدول الدوري — تعلّم الجدول الدوري باللعب",
+    "marke": "PSE PUZZLE",
+    "tagline": "الجدول الدوري: لا يُحفظ حفظًا، بل يُلعب.",
+    "lead": "في PSE Puzzle تضع كل عنصر في موضعه من الجدول الدوري: بهدوء وتركيز، وسط ضباب ورموز رونية تجعل المشهد أقرب إلى طقس قديم منه إلى درس كيمياء. وهكذا بالضبط يستقر ترتيب العناصر في الذاكرة، وكأنه يفعل ذلك من تلقاء نفسه.",
+    "featuresHeading": "ما تحصل عليه",
+    "features": [
+      "تعلّم العناصر خطوة بخطوة — من موضعها في الجدول إلى رمزها",
+      "وضع تعلّم مستقل: اكتشف أولًا، ثم ثبّت ما تعلمته باللعب",
+      "ثلاث درجات صعوبة — سهل، عادي، و N.E.R.D. لمن يعرف حقًا",
+      "تقدّمك يبقى ظاهرًا: كل جولة بتاريخها ونتيجتها ودرجتها",
+      "العب جولة كاملة بلا خطأ لتنفتح الجولة الإضافية: اللانثانيدات والأكتينيدات، في كهف تحت الجدول",
+      "ضع العناصر الـ 118 كلها ليضيء الجدول مرة أخيرة — ثم شهادة يمكنك مشاركتها، مع رمز يثبت أنها أصلية"
+    ],
+    "fair": "يعمل دون اتصال بالإنترنت تمامًا · لا جمع للبيانات، ولا تتبّع، ولا حسابات · متوفر بأربع عشرة لغة",
+    "capMenu": "تعلّم الجدول الدوري باللعب",
+    "capBoard": "كل عنصر في موضعه",
+    "capLearn": "وضع تعلّم بعمق حقيقي",
+    "capBonus": "جولة كاملة تشقّ الصخر",
+    "supportHeading": "الدعم",
+    "supportText": "هل لديك سؤال أو ملاحظة أو تحتاج إلى مساعدة؟ راسلني على <a href=\"mailto:Philipp.Reinicke@gmx.de\">Philipp.Reinicke@gmx.de</a> وسأرد في أقرب وقت.",
+    "privacyLink": "سياسة الخصوصية",
+    "langLabel": "اللغة",
+    "cta": "التنزيل من App Store"
+  }
+};
+// </sprachen>
+
+(function () {
+  const html = document.documentElement;
+  const RTL = new Set(["ar"]);
+  const SPEICHER = "psepuzzle.sprache";
+
+  // Aus den Wünschen des Browsers die beste vorhandene Fassung wählen.
+  //
+  // `navigator.languages` liefert Angaben wie "de-AT", "pt-PT" oder "zh-TW" — Sprache plus
+  // Region, und die Region ist meist eine andere als unsere Ordnernamen. Deshalb in drei
+  // Stufen: erst genau, dann über die Schriftvariante des Chinesischen, dann nur die Sprache.
+  // Findet sich nichts, bleibt es bei Englisch — nicht bei der ersten Fassung im Objekt.
+  function beste() {
+    const gemerkt = localStorage.getItem(SPEICHER);
+    if (gemerkt && SPRACHEN[gemerkt]) return gemerkt;
+
+    const vorhanden = Object.keys(SPRACHEN);
+    for (const wunsch of (navigator.languages || [navigator.language || "en"])) {
+      const w = wunsch.toLowerCase();
+      const treffer = vorhanden.find(s => s.toLowerCase() === w);
+      if (treffer) return treffer;
+
+      if (w.startsWith("zh")) {
+        // Traditionell schreiben Taiwan, Hongkong und Macau; alles andere vereinfacht.
+        const trad = /\b(hant|tw|hk|mo)\b/.test(w);
+        const ziel = trad ? "zh-Hant" : "zh-Hans";
+        if (SPRACHEN[ziel]) return ziel;
+      }
+      const basis = w.split("-")[0];
+      const nurSprache = vorhanden.find(s => s.toLowerCase().split("-")[0] === basis);
+      if (nurSprache) return nurSprache;
+    }
+    return "en";
+  }
+
+  function setzen(code) {
+    const t = SPRACHEN[code] || SPRACHEN.en;
+    html.lang = t.htmlLang || code;
+    html.dir = RTL.has(code) ? "rtl" : "ltr";
+
+    for (const el of document.querySelectorAll("[data-i18n]")) {
+      const wert = t[el.dataset.i18n];
+      if (wert != null) el.textContent = wert;
+    }
+    // Nur dort, wo eine Adresse im Satz steht — der Text kommt aus unserer eigenen Datei,
+    // nicht von aussen.
+    for (const el of document.querySelectorAll("[data-i18n-html]")) {
+      const wert = t[el.dataset.i18nHtml];
+      if (wert != null) el.innerHTML = wert;
+    }
+
+    const liste = document.getElementById("features");
+    liste.innerHTML = "";
+    for (const punkt of t.features) {
+      const li = document.createElement("li");
+      li.textContent = punkt;
+      liste.appendChild(li);
+    }
+
+    document.title = t.title;
+    const beschr = document.querySelector('meta[name="description"]');
+    if (beschr) beschr.setAttribute("content", t.tagline);
+
+    document.getElementById("sprache").value = code;
+  }
+
+  const wahl = document.getElementById("sprache");
+  for (const [code, t] of Object.entries(SPRACHEN)) {
+    const o = document.createElement("option");
+    o.value = code; o.textContent = t.name;
+    wahl.appendChild(o);
+  }
+  wahl.addEventListener("change", () => {
+    localStorage.setItem(SPEICHER, wahl.value);
+    setzen(wahl.value);
+  });
+
+  setzen(beste());
+  html.classList.remove("wartet");
+})();
+</script>
 </body>
 </html>
