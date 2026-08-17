@@ -58,9 +58,31 @@
   a{color:var(--akzent)}
   code{font-size:.85em; word-break:break-all; color:var(--leise)}
   html.wartet body{visibility:hidden}
+/* <hintergrund> */
+  /* ERZEUGT von website/hintergrund_einsetzen.py — nicht von Hand ändern. */
+  .grund {
+    position: fixed; left: 0; right: 0; top: -20vh; height: 140vh;
+    background: #0f0d17 url("hintergrund.webp") center / cover no-repeat;
+    z-index: -2; will-change: transform;
+  }
+  /* Der Schleier. Das Bild ist dunkel, aber nicht gleichmäßig — über den hellen Nebelbänken
+     verliert magerer Text sonst den Halt. Oben und unten dichter, weil dort Überschriften und
+     Fußzeile sitzen. */
+  .grund::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, rgba(15,13,23,.82) 0%, rgba(15,13,23,.52) 22%,
+                              rgba(15,13,23,.52) 74%, rgba(15,13,23,.88) 100%),
+      radial-gradient(120% 80% at 50% 40%, rgba(15,13,23,0) 40%, rgba(15,13,23,.55) 100%);
+  }
+  body { background: transparent; }
+  /* Ohne Bewegungswunsch bleibt das Bild stehen — verschoben wird dann nichts. */
+  @media (prefers-reduced-motion: reduce) { .grund { transition: none; } }
+/* </hintergrund> */
 </style>
 </head>
 <body>
+<div class="grund" aria-hidden="true"></div>
 <main>
   <div class="kopf">
     <div class="marke">PTE Puzzle</div>
@@ -577,6 +599,38 @@ window.addEventListener("hashchange", pruefe);
 
 setzeSprache(besteSprache());
 document.documentElement.classList.remove("wartet");
+</script>
+<script>
+// <hintergrund> — ERZEUGT von website/hintergrund_einsetzen.py, nicht von Hand ändern.
+(function () {
+  const grund = document.querySelector(".grund");
+  if (!grund) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  let angefordert = false;
+
+  function schieben() {
+    angefordert = false;
+    const hoehe = window.innerHeight;
+    const strecke = Math.max(1, document.documentElement.scrollHeight - hoehe);
+    // Spielraum: Die Ebene ist 140 vh hoch und ragt 20 vh nach unten hinaus — genutzt werden
+    // davon nur 18, damit am oberen Rand nichts aufreisst, wenn eine Rundung danebenliegt.
+    const spielraum = hoehe * 0.18;
+    const faktor = Math.min(0.3, spielraum / strecke);
+    grund.style.transform = "translate3d(0," + (window.scrollY * faktor).toFixed(1) + "px,0)";
+  }
+
+  addEventListener("scroll", function () {
+    if (!angefordert) { angefordert = true; requestAnimationFrame(schieben); }
+  }, { passive: true });
+  addEventListener("resize", schieben, { passive: true });
+  // **Nach dem Laden noch einmal.** Der Faktor haengt an der Seitenhoehe, und die waechst, wenn
+  // die Bildschirmfotos ankommen. Ohne das hier bliebe ein zu grosser Versatz stehen, bis der
+  // naechste Scrollschritt ihn korrigiert.
+  addEventListener("load", schieben);
+  schieben();
+})();
+// </hintergrund>
 </script>
 </body>
 </html>

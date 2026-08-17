@@ -40,18 +40,16 @@
   }
   html[dir="rtl"] .sprachwahl select { padding: .32rem .7rem .32rem 1.7rem; background-position: left .6rem center; }
 
-  .hero { position: relative; line-height: 0; }
-  .hero img { width: 100%; height: auto; max-height: 60vh; object-fit: cover; object-position: center 42%; display: block; }
-  .hero::after {
-    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 40%;
-    background: linear-gradient(180deg, rgba(15,13,23,0) 0%, #0f0d17 100%);
-  }
-
-  .intro { text-align: center; padding: 0 1.25rem 1.5rem; position: relative; z-index: 1; }
+  /* Ohne das frühere Hero-Bild trägt der Kopf seinen Abstand selbst. */
+  .intro { text-align: center; padding: clamp(3rem, 12vh, 7rem) 1.25rem 1.5rem; position: relative; z-index: 1; }
+  /* Das Symbol traegt seine runden Ecken selbst (die PNG ist dort durchsichtig). Der
+     `border-radius` von 22 % liegt praktisch deckungsgleich darauf — Apples Squircle misst
+     rund 22,4 % — und dient nur dazu, dass Schatten und Kante der Silhouette folgen statt dem
+     Quadrat. Ohne ihn haengte der Schatten in der Luft, wo das Bild durchsichtig ist. */
   .appicon {
-    width: 96px; height: 96px; border-radius: 22%;
-    margin-top: -52px; display: inline-block;
-    box-shadow: 0 12px 34px rgba(0,0,0,.55); border: 1px solid rgba(255,255,255,.08);
+    width: clamp(224px, 30vw, 336px); height: auto; border-radius: 22%;
+    display: inline-block;
+    box-shadow: 0 26px 70px rgba(0,0,0,.62); border: 1px solid rgba(255,255,255,.08);
   }
   .mark { font-size: 2rem; font-weight: 800; letter-spacing: .12em; color: #c842ff;
           text-shadow: 0 0 22px rgba(200,66,255,.4); margin: .7rem 0 .3rem; }
@@ -86,16 +84,34 @@
   /* Bis die Sprache steht, bleibt der Text unsichtbar — sonst blitzt beim Laden
      kurz das Englische auf, bevor es ersetzt wird. */
   html.wartet body { visibility: hidden; }
+/* <hintergrund> */
+  /* ERZEUGT von website/hintergrund_einsetzen.py — nicht von Hand ändern. */
+  .grund {
+    position: fixed; left: 0; right: 0; top: -20vh; height: 140vh;
+    background: #0f0d17 url("hintergrund.webp") center / cover no-repeat;
+    z-index: -2; will-change: transform;
+  }
+  /* Der Schleier. Das Bild ist dunkel, aber nicht gleichmäßig — über den hellen Nebelbänken
+     verliert magerer Text sonst den Halt. Oben und unten dichter, weil dort Überschriften und
+     Fußzeile sitzen. */
+  .grund::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, rgba(15,13,23,.82) 0%, rgba(15,13,23,.52) 22%,
+                              rgba(15,13,23,.52) 74%, rgba(15,13,23,.88) 100%),
+      radial-gradient(120% 80% at 50% 40%, rgba(15,13,23,0) 40%, rgba(15,13,23,.55) 100%);
+  }
+  body { background: transparent; }
+  /* Ohne Bewegungswunsch bleibt das Bild stehen — verschoben wird dann nichts. */
+  @media (prefers-reduced-motion: reduce) { .grund { transition: none; } }
+/* </hintergrund> */
 </style>
 </head>
 <body>
+<div class="grund" aria-hidden="true"></div>
   <div class="sprachwahl">
     <label for="sprache" data-i18n="langLabel">Language</label>
     <select id="sprache" aria-label="Language"></select>
-  </div>
-
-  <div class="hero">
-    <img src="promo.jpg" alt="PTE Puzzle">
   </div>
 
   <div class="intro">
@@ -605,6 +621,38 @@ const SPRACHEN = {
   setzen(beste());
   html.classList.remove("wartet");
 })();
+</script>
+<script>
+// <hintergrund> — ERZEUGT von website/hintergrund_einsetzen.py, nicht von Hand ändern.
+(function () {
+  const grund = document.querySelector(".grund");
+  if (!grund) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  let angefordert = false;
+
+  function schieben() {
+    angefordert = false;
+    const hoehe = window.innerHeight;
+    const strecke = Math.max(1, document.documentElement.scrollHeight - hoehe);
+    // Spielraum: Die Ebene ist 140 vh hoch und ragt 20 vh nach unten hinaus — genutzt werden
+    // davon nur 18, damit am oberen Rand nichts aufreisst, wenn eine Rundung danebenliegt.
+    const spielraum = hoehe * 0.18;
+    const faktor = Math.min(0.3, spielraum / strecke);
+    grund.style.transform = "translate3d(0," + (window.scrollY * faktor).toFixed(1) + "px,0)";
+  }
+
+  addEventListener("scroll", function () {
+    if (!angefordert) { angefordert = true; requestAnimationFrame(schieben); }
+  }, { passive: true });
+  addEventListener("resize", schieben, { passive: true });
+  // **Nach dem Laden noch einmal.** Der Faktor haengt an der Seitenhoehe, und die waechst, wenn
+  // die Bildschirmfotos ankommen. Ohne das hier bliebe ein zu grosser Versatz stehen, bis der
+  // naechste Scrollschritt ihn korrigiert.
+  addEventListener("load", schieben);
+  schieben();
+})();
+// </hintergrund>
 </script>
 </body>
 </html>
